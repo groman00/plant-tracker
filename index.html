@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plant Tracker</title>
+  <style>
+    html {
+      margin: 0;
+      padding: 0;
+      font-family: 'Gill Sans', sans-serif;
+      font-size: 1rem;
+    }
+
+    body {
+      margin: 0;
+      padding: 0px 10vw;
+    }
+
+    .plants-container {
+      display: flex;
+      flex-direction: column;
+      max-width: 768px;
+      margin: 0 auto;
+    }
+
+    .plant {
+      display: flex;
+      align-items: center;
+      padding: 1rem 0;
+    }
+
+    .plant h2 {
+      padding-left: 1rem;
+    }
+
+    .plant-image {
+      height: 180px;
+      width: 180px;
+      display: block;
+    }
+
+    .plant-last-watered {
+      flex-grow: 1;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="plants" class="plants-container">
+
+  </div>
+  <script>
+    const APIHOST = 'http://127.0.0.1:5000';
+    const plantsView = document.getElementById('plants');
+
+    function el(tag) {
+      return document.createElement(tag);
+    }
+
+    async function waterPlant(plant) {
+      const resp = await fetch(
+        `${APIHOST}/plant/${plant.id}/water`, {
+          method: "POST"
+        }
+      );
+      return resp.json();
+    }
+
+    function PlantView(plant) {
+      const name = el('H2');
+      name.innerText = plant.name
+
+      const image = el('IMG');
+      image.src = `./images/${plant.image}`;
+      image.className = 'plant-image'
+
+      const lastWater = el('SPAN');
+      lastWater.className = 'plant-last-watered'
+      lastWater.innerText = `${plant.last_watered} days ago`;
+
+      const waterButton = el('BUTTON');
+      waterButton.innerText = 'Water';
+      waterButton.addEventListener('click', async () => {
+        await waterPlant(plant);
+        console.log('watered', plant);
+      });
+
+      const actions = el('DIV');
+      actions.className = 'plant-actions'
+      actions.appendChild(waterButton);
+
+
+      const container = el('DIV');
+      container.className = 'plant';
+      container.appendChild(image);
+      container.appendChild(name);
+      container.appendChild(lastWater);
+      container.appendChild(actions);
+
+      return container;
+    }
+
+    (async () => {
+      const resp = await fetch(`${APIHOST}/plants`);
+      const {
+        plants
+      } = await resp.json();
+      for (const plant of plants) {
+        plantsView.appendChild(PlantView(plant))
+      }
+    })();
+  </script>
+</body>
+
+</html>

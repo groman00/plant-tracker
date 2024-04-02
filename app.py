@@ -18,12 +18,14 @@ def plant_waterings():
     connection, cursor = open_connection()
     res = cursor.execute(
       """
-        SELECT plant.id, plant.name, plant.image, timestamp
-        FROM plant
-          LEFT JOIN ( 
-            SELECT timestamp, plant_id FROM watering ORDER BY timestamp LIMIT 1 
+        SELECT plant.id, plant.name, plant.image, watering.timestamp
+          FROM plant
+          LEFT JOIN (
+            SELECT MAX(timestamp), timestamp, plant_id
+            FROM watering 
+            GROUP BY plant_id       
           ) watering
-          ON plant.id = watering.plant_id;
+          ON plant.id = watering.plant_id; 
       """)    
     response_data = res.fetchall();
 

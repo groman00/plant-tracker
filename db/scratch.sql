@@ -1,10 +1,10 @@
--- Get Plants and Last water date
+
+-- Get plants with most recent watering.
 SELECT plant.id, plant.name, plant.image, watering.timestamp
 FROM plant
-  LEFT JOIN ( 
-    SELECT timestamp, plant_id
+  LEFT JOIN (
+    SELECT MAX(timestamp), timestamp, plant_id
   FROM watering
-  ORDER BY timestamp LIMIT 1 
+  GROUP BY plant_id       
   ) watering
-  ON plant.id = watering.plant_id ;
-
+  ON plant.id = watering.plant_id; 

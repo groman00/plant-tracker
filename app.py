@@ -1,7 +1,7 @@
 import sqlite3
 
 from datetime import datetime, timezone
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 from db.constants import DB_FILE
 
 
@@ -10,7 +10,32 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return 'Plant Tracker API'
+    connection, cursor = open_connection()
+    res = cursor.execute(
+      """
+        SELECT plant.id, plant.name, plant.image, watering.timestamp
+          FROM plant
+          LEFT JOIN (
+            SELECT MAX(timestamp), timestamp, plant_id
+            FROM watering 
+            GROUP BY plant_id       
+          ) watering
+          ON plant.id = watering.plant_id; 
+      """)    
+    response_data = res.fetchall();
+
+    for plant in response_data:
+        timestamp = plant['timestamp'];
+        if timestamp:
+          diff = datetime.now(timezone.utc) - datetime.fromtimestamp(timestamp, timezone.utc)
+          plant['last_watered'] = diff.days    
+
+    connection.close()
+    
+    return render_template(
+        'index.html',
+        plants=response_data,
+    )
 
 
 @app.route('/plants')

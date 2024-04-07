@@ -7,10 +7,47 @@ c = conn.cursor()
 
 # Plants
 c.execute("""
-  INSERT INTO plant VALUES(NULL, 'test-plant-1', 'image-1.jpg');
+  INSERT INTO plant VALUES(NULL, 'Spider Plant 1', 'image-1.jpg');
 """)
+
 c.execute("""
-  INSERT INTO plant VALUES(NULL, 'test-plant-2', 'image-2.jpg');
+  INSERT INTO plant VALUES(NULL, 'Spider Plant 2', 'image-2.jpg');
+""")
+
+c.execute("""
+  INSERT INTO plant VALUES(NULL, 'Philodendron 1', 'image-2.jpg');
+""")
+
+c.execute("""
+  INSERT INTO plant VALUES(NULL, 'Philodendron 2', 'image-2.jpg');
+""")
+
+c.execute("""
+  INSERT INTO plant VALUES(NULL, 'Pilea 1', 'image-2.jpg');
+""")
+
+c.execute("""
+  INSERT INTO plant VALUES(NULL, 'Pilea 2', 'image-2.jpg');
+""")
+
+c.execute("""
+  INSERT INTO plant VALUES(NULL, 'Rubber Tree', 'image-2.jpg');
+""")
+
+c.execute("""
+  INSERT INTO plant VALUES(NULL, 'Peace Lily', 'image-2.jpg');
+""")
+
+c.execute("""
+  INSERT INTO plant VALUES(NULL, 'Succulents', 'image-2.jpg');
+""")
+
+c.execute("""
+  INSERT INTO plant VALUES(NULL, 'Money Tree', 'image-2.jpg');
+""")
+
+c.execute("""
+  INSERT INTO plant VALUES(NULL, 'Propagation Tubes', 'image-2.jpg');
 """)
 
 # Waterings

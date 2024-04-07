@@ -31,19 +31,39 @@
       padding: 1rem 0;
     }
 
-    .plant h2 {
-      padding-left: 1rem;
-    }
-
     .plant-image {
-      height: 180px;
-      width: 180px;
+      height: 120px;
+      width: 120px;
       display: block;
     }
 
-    .plant-last-watered {
-      flex-grow: 1;
-      text-align: center;
+    .plant-detail {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      gap: 1rem;
+      padding-left: 1rem;
+    }
+
+    .plant-detail h2 {
+      margin: 0;
+    }
+
+    @media (min-width: 768px) {
+
+      .plant-image {
+        height: 180px;
+        width: 180px;
+      }
+
+      .plant-detail {
+        flex-direction: row;
+      }
+
+      .plant-last-watered {
+        flex-grow: 1;
+        text-align: center;
+      }
     }
   </style>
 </head>
@@ -92,12 +112,17 @@
       actions.className = 'plant-actions'
       actions.appendChild(waterButton);
 
+      const plantDetail = el('DIV');
+      plantDetail.className = 'plant-detail';
+      plantDetail.appendChild(name);
+      plantDetail.appendChild(lastWater);
+      plantDetail.appendChild(actions);
+
       const container = el('DIV');
       container.className = 'plant';
+
       container.appendChild(image);
-      container.appendChild(name);
-      container.appendChild(lastWater);
-      container.appendChild(actions);
+      container.appendChild(plantDetail);
 
       return container;
     }

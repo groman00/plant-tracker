@@ -2,125 +2,115 @@
 
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plant Tracker</title>
+    <style>
+      html {
+        margin: 0;
+        padding: 0;
+        font-family: "Gill Sans", sans-serif;
+        font-size: 1rem;
+      }
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Plant Tracker</title>
-  <style>
-    html {
-      margin: 0;
-      padding: 0;
-      font-family: 'Gill Sans', sans-serif;
-      font-size: 1rem;
-    }
+      body {
+        margin: 0;
+        padding: 0px 10vw;
+      }
 
-    body {
-      margin: 0;
-      padding: 0px 10vw;
-    }
+      .plants-container {
+        display: flex;
+        flex-direction: column;
+        max-width: 768px;
+        margin: 0 auto;
+      }
 
-    .plants-container {
-      display: flex;
-      flex-direction: column;
-      max-width: 768px;
-      margin: 0 auto;
-    }
-
-    .plant {
-      display: flex;
-      align-items: center;
-      padding: 1rem 0;
-    }
-
-    .plant-image {
-      height: 120px;
-      width: 120px;
-      display: block;
-    }
-
-    .plant-detail {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      gap: 1rem;
-      padding-left: 1rem;
-    }
-
-    .plant-detail h2 {
-      margin: 0;
-    }
-
-    .plant-last-watered {
-      font-size: 1.5rem;
-    }
-
-    @media (min-width: 768px) {
+      .plant {
+        display: flex;
+        align-items: center;
+        padding: 1rem 0;
+      }
 
       .plant-image {
-        height: 180px;
-        width: 180px;
+        height: 120px;
+        width: 120px;
+        display: block;
       }
 
       .plant-detail {
-        flex-direction: row;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        gap: 1rem;
+        padding-left: 1rem;
+      }
+
+      .plant-detail h2 {
+        margin: 0;
       }
 
       .plant-last-watered {
-        flex-grow: 1;
-        text-align: center;
+        font-size: 1.25rem;
       }
-    }
-  </style>
-</head>
 
-<body>
-  <div id="plants" class="plants-container">
-    {% for plant in plants %}
-    <div class="plant">
-      <img class="plant-image" src="/static/images/{{plant.image}}" />
-      <div class="plant-detail">
-        <h2>{{plant.name}}</h2>
-        <div class="plant-last-watered">
-          {{plant.last_watered}} days ago
-        </div>
-        <div class="plant-actions">
-          <button class="plant-water-button" data-plant-id="{{plant.id}}">Water</button>
+      @media (min-width: 768px) {
+        .plant-image {
+          height: 180px;
+          width: 180px;
+        }
+
+        .plant-detail {
+          flex-direction: row;
+        }
+
+        .plant-last-watered {
+          flex-grow: 1;
+          text-align: right;
+          padding-right: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="plants" class="plants-container">
+      {% for plant in plants %}
+      <div id="plant_{{plant.id}}" class="plant">
+        <img class="plant-image" src="/static/images/{{plant.image}}" />
+        <div class="plant-detail">
+          <h2>{{plant.name}}</h2>
+          <div class="plant-last-watered">{{plant.last_water}}</div>
+          <div class="plant-actions">
+            <button class="plant-water-button" data-plant-id="{{plant.id}}">
+              Water
+            </button>
+          </div>
         </div>
       </div>
+      {% endfor %}
     </div>
-    {% endfor %}
-  </div>
-  <script>
-    const APIHOST = 'http://127.0.0.1:5000';
-    // const plantsView = document.getElementById('plants');
+    <script>
+      const APIHOST = "http://127.0.0.1:5000";
 
-    // function el(tag) {
-    //   return document.createElement(tag);
-    // }
+      (() => {
+        const buttons = document.getElementsByClassName("plant-water-button");
 
-    async function waterPlant(id) {
-      const resp = await fetch(
-        `${APIHOST}/plant/${id}/water`, {
-          method: "POST"
+        for (const button of buttons) {
+          button.addEventListener("click", async (e) => {
+            const id = e.currentTarget.dataset.plantId;
+            const resp = await fetch(`${APIHOST}/plant/${id}/water`, {
+              method: "POST",
+            });
+            const json = await resp.json();
+            const el = document
+              .getElementById(`plant_${id}`)
+              .getElementsByClassName("plant-last-watered")[0];
+
+            el.innerText = json.last_water;
+          });
         }
-      );
-      return resp.json();
-    }
-
-    (() => {
-      const buttons = document.getElementsByClassName('plant-water-button');
-
-      for (const button of buttons) {
-        button.addEventListener('click', async (e) => {
-          const id = e.currentTarget.dataset.plantId;
-          await waterPlant(e.currentTarget.dataset.plantId);
-          console.log('watered', id);
-        });
-      }
-    })();
-  </script>
-</body>
-
+      })();
+    </script>
+  </body>
 </html>
 {% endblock %}

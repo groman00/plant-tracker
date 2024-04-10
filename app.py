@@ -7,7 +7,6 @@ from db.constants import DB_FILE
 
 app = Flask(__name__)
 
-
 @app.route('/')
 def index():
     connection, cursor = open_connection()
@@ -25,10 +24,7 @@ def index():
     response_data = res.fetchall();
 
     for plant in response_data:
-        timestamp = plant['timestamp'];
-        if timestamp:
-          diff = datetime.now(timezone.utc) - datetime.fromtimestamp(timestamp, timezone.utc)
-          plant['last_watered'] = diff.days    
+        plant['last_water'] = get_last_water_text(plant['timestamp'])   
 
     connection.close()
     
@@ -37,62 +33,39 @@ def index():
         plants=response_data,
     )
 
-
-@app.route('/plants')
-def plant_waterings():
-    connection, cursor = open_connection()
-    res = cursor.execute(
-      """
-        SELECT plant.id, plant.name, plant.image, watering.timestamp
-          FROM plant
-          LEFT JOIN (
-            SELECT MAX(timestamp), timestamp, plant_id
-            FROM watering 
-            GROUP BY plant_id       
-          ) watering
-          ON plant.id = watering.plant_id; 
-      """)    
-    response_data = res.fetchall();
-
-    for plant in response_data:
-        timestamp = plant['timestamp'];
-        if timestamp:
-          diff = datetime.now(timezone.utc) - datetime.fromtimestamp(timestamp, timezone.utc)
-          plant['last_watered'] = diff.days
-
-    return close_connection_with_response(
-        connection,
-        dict(plants=response_data),
-    )
-    
-
 @app.route('/plant/<id>/water', methods=['POST'])
 def water_plant(id):
     connection, cursor = open_connection()   
+    timestamp = datetime.timestamp(datetime.now(timezone.utc), )
     cursor.execute(    
       f"""
-      INSERT INTO watering VALUES(NULL, {id}, {datetime.timestamp(datetime.now(timezone.utc), )});
+      INSERT INTO watering VALUES(NULL, {id}, {timestamp});
       """
     )
     connection.commit()
+    connection.close()
 
-    return close_connection_with_response(
-        connection,
-        dict(),
-    )    
+    response = dict(
+        id=id,
+        last_water=get_last_water_text(timestamp)
+    )
+    return response
+
+
+def get_last_water_text(timestamp):
+  if timestamp:
+    diff = datetime.now(timezone.utc) - datetime.fromtimestamp(timestamp, timezone.utc)
+    days = diff.days
+    if days == 0:
+      return 'Watered Today'
+    return f"{days} days ago"
+  return 'Never Watered'
     
     
 def open_connection():
     con = sqlite3.connect(DB_FILE)
     con.row_factory = dict_factory
     return con, con.cursor()    
-
-
-def close_connection_with_response(connection, response_data):
-    response = jsonify(response_data)
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    connection.close()
-    return response
 
 
 def dict_factory(cursor, row):

@@ -24,3 +24,9 @@
   - Sqlite: https://docs.python.org/3/library/sqlite3.html
 - For Client, piggy back on existing lighthttpd web server
   - /var/www/html/plants
+
+# Misc
+
+```
+scp -r ./workspace/plant-tracker/* greg@raspberrypi.local:~/workspace/plant-tracker
+```

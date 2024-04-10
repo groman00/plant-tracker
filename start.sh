@@ -1,1 +1,4 @@
-python app.py
+#!/bin/bash
+
+nohup python app.py &
+disown
